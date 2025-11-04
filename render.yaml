@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: soyabean-leaf-detection
+    env: python
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "gunicorn app_main:app"
+    plan: free
