@@ -1,0 +1,419 @@
+{% extends "base.html" %}
+
+{% block title %}Analysis History - Soyabean Leaf Disease Detection{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="main-container fade-in">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="mb-1">Analysis History</h2>
+                <p class="text-muted mb-0">View your previous disease detection analyses</p>
+            </div>
+            <button class="btn btn-success" onclick="window.location.href='{{ url_for('index') }}'">
+                <i class="fas fa-plus me-2"></i>New Analysis
+            </button>
+        </div>
+
+        <!-- Filters and Search -->
+        {% if history %}
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fas fa-search"></i></span>
+                    <input type="text" class="form-control" id="searchInput" placeholder="Search by filename or disease..." onkeyup="filterHistory()">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <select class="form-select" id="diseaseFilter" onchange="filterHistory()">
+                    <option value="">All Diseases</option>
+                    <option value="healthy">Healthy</option>
+                    <option value="yellow mosaic">Yellow Mosaic</option>
+                    <option value="brown spot">Brown Spot</option>
+                    <option value="rust">Rust Disease</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <select class="form-select" id="severityFilter" onchange="filterHistory()">
+                    <option value="">All Severities</option>
+                    <option value="none">None</option>
+                    <option value="low">Low</option>
+                    <option value="moderate">Moderate</option>
+                    <option value="high">High</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button class="btn btn-outline-secondary w-100" onclick="clearFilters()">
+                    <i class="fas fa-times me-2"></i>Clear
+                </button>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        {% if history %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Image</th>
+                                        <th>Disease Detected</th>
+                                        <th>Confidence</th>
+                                        <th>Severity</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for item in history %}
+                                    <tr>
+                                        <td>
+                                            {% set date_obj = item.analysis_date | strptime('%Y-%m-%d %H:%M:%S') %}
+                                            {{ date_obj.strftime('%d/%m/%Y') }}
+                                        </td>
+                                        <td>
+                                            <img src="{{ url_for('static', filename='uploads/' + item.filename) }}" 
+                                                 class="rounded img-thumbnail" 
+                                                 alt="Leaf sample"
+                                                 style="width: 60px; height: 40px; object-fit: cover;"
+                                                 onerror="this.src='https://via.placeholder.com/60x40/22c55e/ffffff?text=Leaf'">
+                                            <br>
+                                            <small class="text-muted">{{ item.original_filename }}</small>
+                                        </td>
+                                        <td>{{ item.disease_detected }}</td>
+                                        <td>
+                                            {% if item.confidence >= 80 %}
+                                                <span class="badge bg-success">{{ "%.1f"|format(item.confidence) }}%</span>
+                                            {% elif item.confidence >= 60 %}
+                                                <span class="badge bg-warning">{{ "%.1f"|format(item.confidence) }}%</span>
+                                            {% else %}
+                                                <span class="badge bg-danger">{{ "%.1f"|format(item.confidence) }}%</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if item.severity == 'None' %}
+                                                <span class="severity-badge severity-low">{{ item.severity }}</span>
+                                            {% elif item.severity == 'Low' %}
+                                                <span class="severity-badge severity-low">{{ item.severity }}</span>
+                                            {% elif item.severity == 'Moderate' %}
+                                                <span class="severity-badge severity-moderate">{{ item.severity }}</span>
+                                            {% elif item.severity == 'High' %}
+                                                <span class="severity-badge severity-high">{{ item.severity }}</span>
+                                            {% else %}
+                                                <span class="severity-badge severity-moderate">{{ item.severity }}</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-success">{{ item.status }}</span>
+                                        </td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-success ms-1" 
+                                                    title="Download Report"
+                                                    onclick="downloadReport({{ item.id }}, '{{ item.original_filename }}', '{{ item.disease_detected }}', {{ item.confidence }}, '{{ item.severity }}')">
+                                                <i class="fas fa-download"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-danger ms-1" 
+                                                    title="Delete Analysis"
+                                                    onclick="deleteAnalysis({{ item.id }})">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-history text-muted" style="font-size: 4rem;"></i>
+                            <h4 class="text-muted mt-3">No Analysis History Found</h4>
+                            <p class="text-muted">You haven't performed any leaf disease analysis yet.</p>
+                            <a href="{{ url_for('index') }}" class="btn btn-success">
+                                <i class="fas fa-plus me-2"></i>Start Your First Analysis
+                            </a>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center mt-4">
+            <p class="text-muted">
+                <i class="fas fa-info-circle me-2"></i>
+                Analysis history is stored securely. Export reports for permanent records.
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Confirm Delete</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete this analysis? This action cannot be undone.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" id="confirmDelete">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.severity-badge {
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.375rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.severity-low {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.severity-moderate {
+    background-color: #fff3cd;
+    color: #856404;
+    border: 1px solid #ffeaa7;
+}
+
+.severity-high {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.img-thumbnail {
+    border: 2px solid #dee2e6;
+    transition: border-color 0.15s ease-in-out;
+}
+
+.img-thumbnail:hover {
+    border-color: #28a745;
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(0, 0, 0, 0.075);
+}
+
+.btn-sm {
+    margin: 2px;
+}
+</style>
+{% endblock %}
+
+{% block scripts %}
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add Bootstrap modal functionality
+    const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+    let deleteAnalysisId = null;
+
+    window.deleteAnalysis = function(analysisId) {
+        deleteAnalysisId = analysisId;
+        deleteModal.show();
+    };
+
+    document.getElementById('confirmDelete').addEventListener('click', function() {
+        if (deleteAnalysisId) {
+            // Make AJAX request to delete analysis
+            fetch(`/delete_analysis/${deleteAnalysisId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload(); // Refresh the page
+                } else {
+                    alert('Error deleting analysis: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error deleting analysis');
+            });
+            
+            deleteModal.hide();
+        }
+    });
+
+    window.downloadReport = function(id, filename, disease, confidence, severity) {
+        // Create a simple text report
+        const reportDate = new Date().toLocaleDateString();
+        const reportContent = `
+SOYABEAN LEAF DISEASE DETECTION REPORT
+======================================
+
+Analysis ID: ${id}
+Date: ${reportDate}
+Image: ${filename}
+
+RESULTS:
+--------
+Disease Detected: ${disease}
+Confidence Level: ${confidence}%
+Severity: ${severity}
+Status: Completed
+
+Generated by SoyVision Leaf Guardian
+Advanced AI-Powered Disease Detection System
+        `.trim();
+
+        // Create and download the file
+        const blob = new Blob([reportContent], { type: 'text/plain' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.style.display = 'none';
+        a.href = url;
+        a.download = `analysis_report_${id}_${filename.split('.')[0]}.txt`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+    };
+});
+
+// Add filter functionality
+function filterHistory() {
+    const searchInput = document.getElementById('searchInput');
+    const diseaseFilter = document.getElementById('diseaseFilter');
+    const severityFilter = document.getElementById('severityFilter');
+    
+    if (!searchInput) return; // Exit if filters don't exist
+    
+    const searchTerm = searchInput.value.toLowerCase();
+    const diseaseValue = diseaseFilter.value.toLowerCase();
+    const severityValue = severityFilter.value.toLowerCase();
+    
+    const rows = document.querySelectorAll('tbody tr');
+    
+    rows.forEach(row => {
+        const filename = row.cells[1].textContent.toLowerCase();
+        const disease = row.cells[2].textContent.toLowerCase();
+        const severity = row.cells[4].textContent.toLowerCase();
+        
+        const matchesSearch = filename.includes(searchTerm) || disease.includes(searchTerm);
+        const matchesDisease = diseaseValue === '' || disease.includes(diseaseValue);
+        const matchesSeverity = severityValue === '' || severity.includes(severityValue);
+        
+        if (matchesSearch && matchesDisease && matchesSeverity) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+}
+
+function clearFilters() {
+    document.getElementById('searchInput').value = '';
+    document.getElementById('diseaseFilter').value = '';
+    document.getElementById('severityFilter').value = '';
+    filterHistory();
+}
+// Function to handle analysis deletion
+function deleteAnalysis(analysisId) {
+    if (confirm('Are you sure you want to delete this analysis? This action cannot be undone.')) {
+        // Show loading indicator
+        const deleteBtn = event.target;
+        deleteBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        deleteBtn.disabled = true;
+        
+        // Send delete request to server
+        fetch(`/delete_analysis/${analysisId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Remove the analysis row from the table
+                const row = document.getElementById(`analysis-${analysisId}`);
+                if (row) {
+                    row.style.opacity = '0';
+                    setTimeout(() => {
+                        row.remove();
+                        
+                        // Show success message
+                        showNotification('Analysis deleted successfully!', 'success');
+                        
+                        // If no analyses left, show empty state
+                        if (document.querySelectorAll('#analysisTable tbody tr').length === 0) {
+                            document.getElementById('analysisTable').style.display = 'none';
+                            document.getElementById('emptyState').style.display = 'block';
+                        }
+                    }, 300);
+                }
+            } else {
+                alert('Error deleting analysis: ' + data.message);
+                // Reset button
+                deleteBtn.innerHTML = '💷';
+                deleteBtn.disabled = false;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error deleting analysis');
+            // Reset button
+            deleteBtn.innerHTML = '💷';
+            deleteBtn.disabled = false;
+        });
+    }
+}
+
+// Function to show notification
+function showNotification(message, type) {
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = `alert alert-${type} alert-dismissible fade show`;
+    notification.style.position = 'fixed';
+    notification.style.top = '20px';
+    notification.style.right = '20px';
+    notification.style.zIndex = '9999';
+    notification.style.minWidth = '300px';
+    notification.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    // Add to page
+    document.body.appendChild(notification);
+    
+    // Auto remove after 5 seconds
+    setTimeout(() => {
+        if (notification.parentNode) {
+            notification.remove();
+        }
+    }, 5000);
+}
+
+// Add event listeners when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    // Add IDs to all analysis rows for easier deletion
+    const rows = document.querySelectorAll('#analysisTable tbody tr');
+    rows.forEach((row, index) => {
+        const analysisId = row.getAttribute('data-analysis-id') || index;
+        row.id = `analysis-${analysisId}`;
+    });
+});
+</script>
+{% endblock %}

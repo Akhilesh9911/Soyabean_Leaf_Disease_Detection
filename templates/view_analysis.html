@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block title %}Analysis Details - Soyabean Leaf Disease Detection{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="main-container fade-in">
+        <!-- Back Button -->
+        <div class="mb-4">
+            <button class="btn btn-outline-secondary" onclick="window.history.back()">
+                <i class="fas fa-arrow-left me-2"></i>Back to History
+            </button>
+        </div>
+
+        <!-- Analysis Details -->
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">Analysis Details #{{ analysis.id }}</h4>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Analysis ID:</strong> #{{ analysis.id }}</p>
+                        <p><strong>Date:</strong> {{ analysis.analysis_date }}</p>
+                        <p><strong>Filename:</strong> {{ analysis.original_filename }}</p>
+                        <p><strong>Processing Time:</strong> {{ analysis.processing_time }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Disease:</strong> 
+                            <span class="badge bg-{% if analysis.disease_detected.lower() == 'healthy' %}success{% else %}warning{% endif %}">
+                                {{ analysis.disease_detected }}
+                            </span>
+                        </p>
+                        <p><strong>Confidence:</strong> 
+                            <span class="badge bg-success">{{ "%.1f"|format(analysis.confidence) }}%</span>
+                        </p>
+                        <p><strong>Severity:</strong> 
+                            <span class="badge 
+                                {% if analysis.severity == 'None' or analysis.severity == 'Low' %}bg-success
+                                {% elif analysis.severity == 'Moderate' %}bg-warning
+                                {% elif analysis.severity == 'High' %}bg-danger
+                                {% else %}bg-secondary{% endif %}">
+                                {{ analysis.severity }}
+                            </span>
+                        </p>
+                        <p><strong>Status:</strong> 
+                            <span class="badge bg-success">{{ analysis.status }}</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Image -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Leaf Image</h5>
+            </div>
+            <div class="card-body text-center">
+                <img src="{{ url_for('static', filename='uploads/' + analysis.filename) }}" 
+                     class="img-fluid rounded" 
+                     style="max-height: 400px;"
+                     alt="Analyzed leaf image"
+                     onerror="this.src='https://via.placeholder.com/600x400/22c55e/ffffff?text=Image+Not+Found'">
+            </div>
+        </div>
+
+        <!-- Recommendations -->
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">Recommendations</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-group">
+                    {% for recommendation in analysis.recommendations %}
+                    <li class="list-group-item">
+                        <i class="fas fa-check-circle text-success me-2"></i>
+                        {{ recommendation }}
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

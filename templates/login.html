@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Soyabean Leaf Disease Detection</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-green: #22c55e;
+            --primary-green-dark: #16a34a;
+            --secondary-green: #dcfce7;
+            --text-primary: #1f2937;
+            --text-secondary: #6b7280;
+            --background-light: #f8fafc;
+            --border-light: #e5e7eb;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="%23ffffff" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="%23ffffff" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>') repeat;
+            z-index: -1;
+            opacity: 0.3;
+        }
+
+        .login-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            max-width: 450px;
+            width: 100%;
+        }
+
+        .brand-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .leaf-icon {
+            width: 60px;
+            height: 60px;
+            background: var(--primary-green);
+            border-radius: 15px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .brand-title {
+            font-weight: 700;
+            color: var(--primary-green);
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+        }
+
+        .brand-subtitle {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        .form-control {
+            border-radius: 12px;
+            padding: 15px 20px;
+            border: 2px solid var(--border-light);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-green);
+            box-shadow: 0 0 0 0.2rem rgba(34, 197, 94, 0.25);
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .btn-primary {
+            background: var(--primary-green);
+            border: none;
+            border-radius: 12px;
+            padding: 15px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-green-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(34, 197, 94, 0.3);
+        }
+
+        .btn-outline {
+            border: 2px solid var(--primary-green);
+            color: var(--primary-green);
+            background: transparent;
+            border-radius: 12px;
+            padding: 15px;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            width: 100%;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn-outline:hover {
+            background: var(--primary-green);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .alert {
+            border: none;
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin-bottom: 20px;
+        }
+
+        .alert-danger {
+            background: #fef2f2;
+            color: #dc2626;
+            border-left: 4px solid #dc2626;
+        }
+
+        .alert-success {
+            background: var(--secondary-green);
+            color: var(--primary-green-dark);
+            border-left: 4px solid var(--primary-green);
+        }
+
+        .divider {
+            text-align: center;
+            margin: 30px 0;
+            position: relative;
+        }
+
+        .divider::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: var(--border-light);
+        }
+
+        .divider span {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 0 20px;
+            color: var(--text-secondary);
+        }
+
+        .forgot-password {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .forgot-password a {
+            color: var(--primary-green);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .forgot-password a:hover {
+            text-decoration: underline;
+        }
+
+        .input-group {
+            position: relative;
+        }
+
+        .input-group .form-control {
+            padding-left: 50px;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+            z-index: 5;
+        }
+
+        /* Modal Styles */
+        .modal-content {
+            border-radius: 20px;
+            border: none;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+        }
+
+        .modal-header {
+            border-bottom: 1px solid var(--border-light);
+            padding: 25px 30px 15px;
+        }
+
+        .modal-body {
+            padding: 25px 30px;
+        }
+
+        .modal-footer {
+            border-top: 1px solid var(--border-light);
+            padding: 15px 30px 25px;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .login-container {
+            animation: fadeInUp 0.6s ease-out;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <!-- Brand Header -->
+        <div class="brand-header">
+            <div class="leaf-icon">
+                <i class="fas fa-leaf text-white fa-2x"></i>
+            </div>
+            <h1 class="brand-title">Soyabean Leaf Disease Detection</h1>
+            <p class="brand-subtitle">Professional Soyabean Disease Detection System</p>
+        </div>
+
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-danger" role="alert">
+                        <i class="fas fa-exclamation-triangle me-2"></i>{{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <!-- Login Form -->
+        <form method="POST" autocomplete="off">
+            <div class="mb-3">
+                <label for="email" class="form-label">Email Address</label>
+                <div class="input-group">
+                    <i class="fas fa-envelope input-icon"></i>
+                    <input type="email" class="form-control" id="email" name="email" autocomplete="off"
+                           placeholder="Enter your email" required>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <label for="password" class="form-label">Password</label>
+                <div class="input-group">
+                    <i class="fas fa-lock input-icon"></i>
+                    <input type="password" class="form-control" id="password" name="password" autocomplete="new-password"
+                           placeholder="Enter your password" required>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-sign-in-alt me-2"></i>Sign In
+            </button>
+        </form>
+
+        <!-- Forgot Password -->
+        <div class="forgot-password">
+            <a href="#" data-bs-toggle="modal" data-bs-target="#forgotPasswordModal">Forgot your password?</a>
+        </div>
+
+        <!-- Divider -->
+        <div class="divider">
+            <span>Don't have an account?</span>
+        </div>
+
+        <!-- Register Link -->
+        <a href="{{ url_for('register') }}" class="btn-outline">
+            <i class="fas fa-user-plus me-2"></i>Create Account
+        </a>
+    </div>
+
+    <!-- Forgot Password Modal -->
+    <div class="modal fade" id="forgotPasswordModal" tabindex="-1" aria-labelledby="forgotPasswordModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="forgotPasswordModalLabel">
+                        <i class="fas fa-key me-2"></i>Reset Your Password
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="text-muted mb-4">
+                        Enter your email address and we'll send you a link to reset your password.
+                    </p>
+                    <form id="forgotPasswordForm">
+                        <div class="mb-3">
+                            <label for="resetEmail" class="form-label">Email Address</label>
+                            <div class="input-group">
+                                <i class="fas fa-envelope input-icon"></i>
+                                <input type="email" class="form-control" id="resetEmail" 
+                                       placeholder="Enter your email" required>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="sendResetLink">
+                        <i class="fas fa-paper-plane me-2"></i>Send Reset Link
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Auto-hide flash messages
+        setTimeout(function() {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(alert => {
+                alert.style.transition = 'opacity 0.5s ease';
+                alert.style.opacity = '0';
+                setTimeout(() => alert.remove(), 500);
+            });
+        }, 4000);
+
+        // Form validation enhancement
+        document.querySelector('form').addEventListener('submit', function(e) {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            if (!email || !password) {
+                e.preventDefault();
+                alert('Please fill in all fields.');
+                return;
+            }
+
+            // Simple email validation
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                e.preventDefault();
+                alert('Please enter a valid email address.');
+                return;
+            }
+        });
+        
+// Forgot password functionality
+document.getElementById('sendResetLink').addEventListener('click', function() {
+    const email = document.getElementById('resetEmail').value;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!email) {
+        alert('Please enter your email address.');
+        return;
+    }
+
+    if (!emailRegex.test(email)) {
+        alert('Please enter a valid email address.');
+        return;
+    }
+
+    // Show loading state
+    const button = this;
+    const originalText = button.innerHTML;
+    button.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Sending...';
+    button.disabled = true;
+
+    // Send request to backend
+    fetch('/forgot-password', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: `email=${encodeURIComponent(email)}`
+    })
+    .then(response => response.json())
+    .then(data => {
+        // Reset button state
+        button.innerHTML = originalText;
+        button.disabled = false;
+
+        if (data.success) {
+            alert(data.message);
+            // Close modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('forgotPasswordModal'));
+            modal.hide();
+            // Clear form
+            document.getElementById('resetEmail').value = '';
+        } else {
+            alert(data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        button.innerHTML = originalText;
+        button.disabled = false;
+        alert('An error occurred. Please try again.');
+    });
+});
+
+// Clear form when modal is closed
+document.getElementById('forgotPasswordModal').addEventListener('hidden.bs.modal', function () {
+    document.getElementById('resetEmail').value = '';
+});
+
+// Allow Enter key to submit forgot password form
+document.getElementById('resetEmail').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        document.getElementById('sendResetLink').click();
+    }
+});
+    </script>
+</body>
+</html>
