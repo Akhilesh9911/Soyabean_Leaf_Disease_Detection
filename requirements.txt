@@ -6,3 +6,5 @@ matplotlib
 pandas
 scikit-learn
 gunicorn
+python-3.10.13
+
