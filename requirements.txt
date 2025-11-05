@@ -1,11 +1,14 @@
 Flask
 gunicorn
+opencv-python
 tensorflow-cpu
+torch
+torchvision
 numpy
 pandas
-scikit-learn
 matplotlib
-opencv-python
+scikit-learn
+
 
 
 
