@@ -1,11 +1,11 @@
 Flask
-tensorflow
+gunicorn
+tensorflow-cpu
 numpy
-opencv-python
-matplotlib
 pandas
 scikit-learn
-gunicorn
+matplotlib
+opencv-python
 
 
 
